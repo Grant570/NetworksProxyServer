@@ -36,11 +36,12 @@ public class ProxyThread extends Thread{
                 clientInput = in.readLine();
                 System.out.println(" Received from Client: " + clientInput);
 
+                out.println("404 Error: Page not Found");
+                out.flush();
+                out.close();
 
             }
-            out.println("404 Error: Page not Found");
-            out.flush();
-            out.close();
+
             //After Client stops sending request, close socket
             socket.close();
 
