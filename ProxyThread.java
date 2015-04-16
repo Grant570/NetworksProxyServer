@@ -14,38 +14,49 @@ import java.io.*;
 public class ProxyThread extends Thread{
     //Initialize a Socket
     private Socket socket = null;
+    HttpRequest request;
     //Class Constructor that Will Take in a Socket for reading and writing
     public ProxyThread(Socket socket){
-        super("ProxyThread");
+        super("SocketThread");
         //Initialize Socket
         this.socket = socket;
     }
     //Initiates Thread to be started
     public void run() {
-        try (
+
+        request = new HttpRequest(socket);
+        //System.out.println(request.getFullClientInput());
+        //System.out.println(request.getUpdatedClientInput());
+        //System.out.println(request.URL());
+        System.out.println("PORT: "+ request.Port());
+
+        //try (
                 //Open Socket's inputstream to a BufferedReader
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+               //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 //Create a Data OutputStream that will be used to send to a browser
-                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                //DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-        ) {
+       //) {
             //create a string variable to input clients sent request
-            String clientInput =null;
+            //String clientInput =null;
             //While Client request are greater than 5, print Information to Command Line
-            while((clientInput = in.readLine()).length() >= 5){
-                System.out.println(" Received from Client: " + clientInput);
+            //while((clientInput = in.readLine()).length() >= 5){
+                //System.out.println(" Received from Client: " + clientInput);
 
-            }
+            //}
+           // HttpRequest request = new HttpRequest(socket);
+            //System.out.println();
             //write message in bytes to the Data Output Stream created
-            out.writeBytes("404 Error: Page not Found\r\n");
+          // out.writeBytes("404 Error: Page not Found\r\n");
             //close data output stream
-            out.close();
+           // out.close();
             //After Client stops sending request, close socket
-            socket.close();
+            //socket.close();
         
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+        //}catch (IOException e){
+         //  e.printStackTrace();
+        //}
+
     }
 
 
