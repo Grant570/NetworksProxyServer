@@ -19,7 +19,7 @@ public class ProxyServer {
 
 
         //create variable that initializes the port number to 80
-        final int portNumber = 9998;
+        final int portNumber = 9999;
         //Create a Proxy Server while a Client is Trying to Connect to Port 80
         try (ServerSocket serverSocket =
                      new ServerSocket(portNumber)) {
