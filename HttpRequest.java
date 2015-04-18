@@ -6,6 +6,7 @@ import java.net.*;
 import java.nio.Buffer;
 
 
+
 /**
  * Created by Grant and Jorge on 4/15/2015.
  */
@@ -33,6 +34,7 @@ public class HttpRequest {
                 OutputStream outputStream = socket.getOutputStream();
                 //write the buffer we just read to the output stream
                 outputStream.write(buffer, 0, len);
+                System.out.println(new String(buffer));
 
 
                 //copy response from server request
@@ -62,16 +64,19 @@ public class HttpRequest {
 
 //need to parse for this
     public int Port(){
+
          return 80;
     }
 
     //replace the protocols to old school
     private String replaceProtocols(String input){
-        if(input.contains("GET")){
-            input = input.replace("1.1","1.0");
+
+
+        if(input.contains("GET") || input.contains("Connection: keep-alive")){
+            input = input.replace("HTTP/1.1","HTTP/1.0");
         }
-        if(input.contains("Connection:")){
-            input = input.replace("Keep-Alive","Close");
+        if(input.contains("Connection: keep-alive")){
+            input = input.replace("Connection: keep-alive","Connection: close");
         }
         return input;
     }
@@ -100,7 +105,7 @@ public class HttpRequest {
 
     //helper function
     private byte[] replace(byte[] buf){
-       String replacedStr =  replaceProtocols(new String(buf, 0, len));
+       String replacedStr =  replaceProtocols(new String(buf, 0, buf.length));
         byte rtnByte[] = replacedStr.getBytes();
         return rtnByte;
     }
