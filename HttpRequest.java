@@ -15,10 +15,9 @@ public class HttpRequest {
     private byte[] buffer = new byte[8000];
     private int len;
 
-
+    //constructor
     HttpRequest(Socket client) throws IOException {
         this.client = client;
-
         try {
             //Open Socket's inputstream to a BufferedReader
             InputStream in = client.getInputStream();
@@ -27,60 +26,62 @@ public class HttpRequest {
             len = in.read(buffer);
             //replace 1.1 to 1.0, keep-alive to close
             buffer = replace(buffer);
-
-            if(len > 0) {
-                //writing the request, 80 by default for now
-                Socket socket = new Socket(this.getURL(), 80);
-                OutputStream outputStream = socket.getOutputStream();
-                //write the buffer we just read to the output stream
-                outputStream.write(buffer, 0, len);
-                System.out.println(new String(buffer));
-
-
-                //copy response from server request
-                OutputStream incomingStream = this.client.getOutputStream();
-                InputStream outgoingStream = socket.getInputStream();
-                //continue to read until the end
-                for (int length; (length = outgoingStream.read(buffer)) != -1; ) {
-                    //write these bytes to the client
-                    incomingStream.write(buffer, 0, length);
-                }
-                //close all connections
-                incomingStream.close();
-                outputStream.close();
-                outgoingStream.close();
-                in.close();
-
-                socket.close();
-            }
-            //nothing being sent, close socket
-            else{
-                in.close();
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-//need to parse for this
-    public int Port(){
-
-         return 80;
+    //writes modified client input to server
+    public void writeToOutput(Socket server){
+        try{
+            //create output stream to server
+            OutputStream outputStream = server.getOutputStream();
+            //write the buffer we just read to the output stream
+            outputStream.write(buffer, 0, len);
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
+    //gets output stream of client
+    public OutputStream getClientOutputStream(){
+        if(len > 0) {
+            try {
+                return this.client.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    //gets the buffer from the client
+    public byte[] getClientBuffer(){
+        return buffer;
+    }
+
+//returns 80
+    public int Port(){
+         return 80;
+    }
     //replace the protocols to old school
     private String replaceProtocols(String input){
-
-
-        if(input.contains("GET") || input.contains("Connection: keep-alive")){
+        //downgrade to 1.0
+        if(input.contains("GET")){
             input = input.replace("HTTP/1.1","HTTP/1.0");
         }
-        if(input.contains("Connection: keep-alive")){
+        //check for keep alive upper-case, replace with close
+        if(input.contains("Connection: Keep-Alive")){
+            input = input.replace("Connection: Keep-Alive","Connection: close");
+        }
+        //check for keep alive lowercase, replace with close
+       else  if(input.contains("Connection: keep-alive")){
             input = input.replace("Connection: keep-alive","Connection: close");
         }
         return input;
     }
-//gets the url to be used
+//return the url to be used
     private String parseUrl(String input){
         if(input.contains("GET"))
         {
@@ -96,14 +97,14 @@ public class HttpRequest {
                 e.printStackTrace();
             }
         }
+        //url could not be found
        return "";
     }
-//funciton to get the url
+//function to get the url
     public String getURL(){
         return parseUrl(new String(buffer, 0 , len) );
     }
-
-    //helper function
+    //helper function, replaces protocols from byte buffer
     private byte[] replace(byte[] buf){
        String replacedStr =  replaceProtocols(new String(buf, 0, buf.length));
         byte rtnByte[] = replacedStr.getBytes();

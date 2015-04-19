@@ -14,66 +14,40 @@ import java.io.*;
 
 public class ProxyThread extends Thread{
     //Initialize a Socket
-    private Socket socket = null;
+    private Socket client = null;
     private Socket server = null;
     HttpRequest request;
+    HttpResponse response;
 
 
     //Class Constructor that Will Take in a Socket for reading and writing
-    public ProxyThread(Socket socket){
+    public ProxyThread(Socket client){
         super("SocketThread");
         //Initialize Socket
-        this.socket = socket;
+        this.client = client;
+
     }
     //Initiates Thread to be started
     public void run() {
         try{
-            request = new HttpRequest(this.socket);
+            //create a new request from client
+            request = new HttpRequest(this.client);
+            //create a new socket to server based on client
+            this.server = new Socket(this.request.getURL(), this.request.Port());
+            //get the response with server socket
+            response = new HttpResponse(this.server);
+            //write clients request to server
+            request.writeToOutput(server);
+            //pass results to client stream
+            response.writeToClientOutputStream(client);
+            //close both connections
+            this.server.close();
+            this.client.close();
         }
         catch(IOException e){
             e.printStackTrace();
         }
-
-        //attempt to conenct to webserver
-        //try{
-            //request.contectToServer();
-        //}
-       // catch (IOException e){
-            //e.printStackTrace();
-        //}
-
-        //System.out.println(request.getFullClientInput());
-        //System.out.println(request.getUpdatedClientInput());
-        //System.out.println(request.URL());
-        //System.out.println("PORT: "+ request.Port());
-
-       // try (
-                //Open Socket's inputstream to a BufferedReader
-               //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                //Create a Data OutputStream that will be used to send to a browser
-                //DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
-      // ) {
-            //create a string variable to input clients sent request
-            //String clientInput =null;
-            //While Client request are greater than 5, print Information to Command Line
-           // while((clientInput = in.readLine()).length() >= 5){
-                //System.out.println(" Received from Client: " + clientInput);
-
-            //}
-            //write message in bytes to the Data Output Stream created
-            //close data output stream
-           // out.close();
-            //After Client stops sending request, close socket
-            //socket.close();
-        
-        //}catch (IOException e){
-         //  e.printStackTrace();
-        //}
-
     }
-
-
     }
 
 
