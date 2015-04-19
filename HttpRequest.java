@@ -61,8 +61,17 @@ public class HttpRequest {
         return buffer;
     }
 
-//returns 80
+//returns 80 by default otherwise choose between ftp and https
     public int Port(){
+        if( this.getURL().toLowerCase().contains("https:")){
+            return 443;
+        }
+        else if(this.getURL().toLowerCase().contains("http:")){
+            return 80;
+        }
+        else if(this.getURL().toLowerCase().contains("ftp:")){
+            return 20;
+        }
          return 80;
     }
     //replace the protocols to old school
@@ -102,7 +111,7 @@ public class HttpRequest {
     }
 //function to get the url
     public String getURL(){
-        return parseUrl(new String(buffer, 0 , len) );
+        return parseUrl(new String(buffer, 0 , buffer.length) );
     }
     //helper function, replaces protocols from byte buffer
     private byte[] replace(byte[] buf){

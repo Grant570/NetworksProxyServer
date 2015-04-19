@@ -39,10 +39,6 @@ public class HttpResponse {
             e.printStackTrace();
         }
     }
-    //default returns 80
-    public int Port(){
-        return 80;
-    }
 
     //gets the url to be used
     private String parseUrl(String input){
